@@ -45,6 +45,10 @@ python run.py A_constraints_away
 
 The `plotting/` directory contains scripts to generate the summary figures from the paper.
 
+## Figures
+
+The outputs of the codes are saved under /figures.
+
 ## References
 
 - Wright, V., Morzfeld, M., & Manga, M. (2024). Liquid water in the Martian mid-crust. *PNAS*, 121, e2409983121.
