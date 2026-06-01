@@ -5,17 +5,17 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from pathlib import Path
 
-BASE = Path("/home/ubuntu/Downloads/mars_clean")
+BASE = Path(__file__).resolve().parents[1]
 
 MODELS = [
-    ("bm_github",  "outputs_bm"),
-    ("bmw_github", "outputs_bmw"),
-    ("HS",         "outputs_hsu"),
-    ("HSh",        "outputs_hsu"),
-    ("DEMV",       "outputs_demni"),
-    ("DEMVH",      "outputs_demni"),
-    ("kt",         "outputs_kt"),
-    ("vrh",        "outputs_vrh"),
+    ("models/1_SCM_Voigt",  "outputs_bm"),
+    ("models/2_SCM_Hill", "outputs_bmw"),
+    ("models/3_HS_Voigt",         "outputs_hsu"),
+    ("models/4_HS_Hill",        "outputs_hsu"),
+    ("models/5_DEM_Voigt",       "outputs_demni"),
+    ("models/6_DEM_Hill",      "outputs_demni"),
+    ("models/7_KT",         "outputs_kt"),
+    ("models/8_VRH",        "outputs_vrh"),
 ]
 
 CASES = [

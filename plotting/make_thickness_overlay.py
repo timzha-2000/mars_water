@@ -5,17 +5,17 @@ import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 from pathlib import Path
 
-BASE = Path("/home/ubuntu/Downloads/mars_clean")
+BASE = Path(__file__).resolve().parents[1]
 
 MODELS = [
-    ("bm_github",  "outputs_bm",    "Theory 1: Berryman + Voigt"),
-    ("bmw_github", "outputs_bmw",   "Theory 2: Berryman + Hill"),
-    ("HS",         "outputs_hsu",   "Theory 3: HS + Voigt"),
-    ("HSh",        "outputs_hsu",   "Theory 4: HS + Hill"),
-    ("DEMV",       "outputs_demni", "Theory 5: DEM + Voigt"),
-    ("DEMVH",      "outputs_demni", "Theory 6: DEM + Hill"),
-    ("kt",         "outputs_kt",    "Theory 7: Kuster\u2013Toks\u00f6z"),
-    ("vrh",        "outputs_vrh",   "Theory 8: Voigt\u2013Reuss\u2013Hill"),
+    ("models/1_SCM_Voigt",  "outputs_bm",    "Theory 1: Berryman + Voigt"),
+    ("models/2_SCM_Hill", "outputs_bmw",   "Theory 2: Berryman + Hill"),
+    ("models/3_HS_Voigt",         "outputs_hsu",   "Theory 3: HS + Voigt"),
+    ("models/4_HS_Hill",        "outputs_hsu",   "Theory 4: HS + Hill"),
+    ("models/5_DEM_Voigt",       "outputs_demni", "Theory 5: DEM + Voigt"),
+    ("models/6_DEM_Hill",      "outputs_demni", "Theory 6: DEM + Hill"),
+    ("models/7_KT",         "outputs_kt",    "Theory 7: Kuster\u2013Toks\u00f6z"),
+    ("models/8_VRH",        "outputs_vrh",   "Theory 8: Voigt\u2013Reuss\u2013Hill"),
 ]
 
 CASES = [
