@@ -1,55 +1,124 @@
-# Mars
+# Mars mid-crust rock-physics inversion
 
-This repository contains all the rock-physics model implementations for the study:
+This repository contains all the rock-physics model implementations and analysis
+code for the study:
 
 **"Rock physics modeling reveals large uncertainty in midcrustal liquid water on Mars"**
 *Mufan Zha, Per Avseth, Paul Sava*
 
-We test eight rock-physical theory configurations across three seismic parameter sets to evaluate the sensitivity of inferred liquid water distribution in Mars' mid-crust. Each model is contained in its own subdirectory under `models/`.
+We test eight rock-physical theory configurations across three seismic parameter
+sets to evaluate the sensitivity of inferred liquid water distribution in Mars'
+mid-crust. Each model lives in its own subdirectory under `models/`.
+
+## Repository layout
+
+```
+models/      one subdirectory per rock-physics configuration (notebook + run.py)
+plotting/    scripts that build the figures in the paper
+analysis/    convergence, binary-saturation, and across-theory spread analyses
+wmm24/       independent reimplementation of Wright et al. (2024) (MATLAB + Python)
+figures/     example figure outputs
+```
+
+All scripts resolve paths relative to the repository root, so the repository runs
+from a fresh clone without editing any absolute paths.
 
 ## Models
 
 | # | Directory | Dry frame | Fluid mixing | Fluid substitution |
 |---|-----------|-----------|--------------|-------------------|
-| 1 | `1_SCM_Voigt` | Berryman's SCM | Voigt | Gassmann-Biot |
-| 2 | `2_SCM_Hill` | Berryman's SCM | Hill | Gassmann-Biot |
-| 3 | `3_HS_Voigt` | Hashin-Shtrikman | Voigt | Gassmann-Biot |
-| 4 | `4_HS_Hill` | Hashin-Shtrikman | Hill | Gassmann-Biot |
-| 5 | `5_DEM_Voigt` | Differential Effective Medium | Voigt | -- |
-| 6 | `6_DEM_Hill` | Differential Effective Medium | Hill | -- |
-| 7 | `7_KT` | Kuster-Toksoz | -- | -- |
-| 8 | `8_VRH` | Voigt-Reuss-Hill | -- | -- |
+| 1 | `models/1_SCM_Voigt` | Berryman's SCM | Voigt | Gassmann-Biot |
+| 2 | `models/2_SCM_Hill`  | Berryman's SCM | Hill | Gassmann-Biot |
+| 3 | `models/3_HS_Voigt`  | Hashin-Shtrikman | Voigt | Gassmann-Biot |
+| 4 | `models/4_HS_Hill`   | Hashin-Shtrikman | Hill | Gassmann-Biot |
+| 5 | `models/5_DEM_Voigt` | Differential Effective Medium | Voigt | -- |
+| 6 | `models/6_DEM_Hill`  | Differential Effective Medium | Hill | -- |
+| 7 | `models/7_KT`        | Kuster-Toksoz | -- | -- |
+| 8 | `models/8_VRH`       | Voigt-Reuss-Hill | -- | -- |
 
-All inversions use 50,000 MCMC iterations via the `emcee` ensemble sampler.
+All inversions use 50,000 MCMC iterations via the `emcee` affine-invariant
+ensemble sampler (the same sampler used by Wright et al. 2024), with
+`n_walkers = 3 * n_dim`.
 
 ## Three seismic parameter sets
 
-The velocity case with $V_p = 4.1$ km/s, $V_s = 2.5$ km/s corresponds to the parameters used in Wright et al. (2024). See Table 2 in the paper for details.
+The velocity case with $V_p = 4.1$ km/s, $V_s = 2.5$ km/s corresponds to the
+parameters used in Wright et al. (2024); see Table 2 in the paper. The three
+cases are tagged `A_constraints_away` (3.8), `B_wright_inherited` (4.1), and
+`C_insight_marsquake` (4.7).
 
-## Usage
+## Running the continuous-saturation inversions
 
-Each model subdirectory contains:
-- A Jupyter notebook (`.ipynb`) with the forward model and inversion
-- A `run.py` script that executes all three velocity cases headlessly
+Each model subdirectory contains a notebook (the forward model + inversion) and a
+`run.py` that executes all three velocity cases headlessly, writing chains to a
+local `outputs_*/` directory:
 
-To run a single model (e.g., SCM + Voigt):
 ```bash
 cd models/1_SCM_Voigt
-python run.py
+python run.py                      # all three cases
+python run.py A_constraints_away   # a single case
 ```
 
-To run a specific velocity case:
+## Plotting (paper figures)
+
+After the inversions have been run, the `plotting/` scripts build the figures:
+
+| Script | Figure |
+|---|---|
+| `make_thickness_barplot.py`            | mode/median/mean thickness barplot (Fig. 1) |
+| `make_thickness_ridgeline.py`          | continuous thickness ridgeline (Fig. 2) |
+| `make_porosity_ridgeline.py`           | porosity marginals (App A) |
+| `make_saturation_ridgeline.py`         | saturation marginals (App A) |
+| `make_thickness_overlay.py`            | thickness overlay panel |
+| `make_thickness_ridgeline_binary.py`   | binary wet-branch thickness ridgeline (App B) |
+| `make_thickness_barplot_binary.py`     | binary thickness barplot (App B) |
+| `make_prior_sensitivity_ridgeline.py`  | prior-box sensitivity (App D) |
+
 ```bash
-python run.py A_constraints_away
+python plotting/make_thickness_ridgeline.py
 ```
 
-The `plotting/` directory contains scripts to generate the summary figures from the paper.
+## Analysis (`analysis/`)
+
+| Script | Purpose |
+|---|---|
+| `compute_convergence.py` | MCMC convergence diagnostics — integrated autocorrelation time, N_steps/tau, and ESS for all 24 theory–velocity combinations (Appendix C). Reproduces Table A.3. |
+| `setup_binary.py`        | Generates the binary (end-member S_w in {0,1}) notebooks and `run_binary_{wet,dry}.py` runners in each model directory, following Wright et al. (2025) (Appendix B). |
+| `launch_all.sh`          | Convenience launcher for all 48 binary runs (8 models × 3 cases × {wet, dry}). |
+| `make_binary_table.py`   | Builds the binary wet/dry probability and thickness table (Table A.2). |
+| `spread_analysis.py`     | Across-theory disagreement vs. Vp/Vs, by range and coefficient of variation (Table 4). |
+
+Convergence (after running the inversions):
+```bash
+python analysis/compute_convergence.py
+```
+
+Binary-saturation analysis:
+```bash
+python analysis/setup_binary.py     # generate binary runners in each model dir
+bash analysis/launch_all.sh         # run all 48 (or run each models/<m>/run_binary_*.py)
+python analysis/make_binary_table.py
+python plotting/make_thickness_ridgeline_binary.py
+```
+
+## Wright et al. (2024) reimplementation (`wmm24/`)
+
+An independent reimplementation of the Wright et al. (2024) Berryman-SCM
+inversion, used to reproduce their result (Appendix A) and to run the
+prior-box sensitivity study (Appendix D, prior Sets 2 and 3). Both a MATLAB
+version (`wmm24/matlab/`, the same affine-invariant ensemble sampler as the
+original) and a Python port (`wmm24/python/`) are provided. The Appendix-D
+prior-box runs are produced by `RunWiderCont.m`, `RunReplyCont.m`,
+`RunWiderBinary.m`, and `RunReplyBinary.m`.
 
 ## Figures
 
-The outputs of the codes are saved under /figures.
+Example outputs are saved under `figures/`.
 
 ## References
 
 - Wright, V., Morzfeld, M., & Manga, M. (2024). Liquid water in the Martian mid-crust. *PNAS*, 121, e2409983121.
+- Wright, V., Morzfeld, M., & Manga, M. (2025). Reply to Xiao et al. *PNAS*, 122, e2505168122.
+- Xiao, W., Pan, L., Wang, Y., & Li, J. (2025). Liquid water might not be the only answer. *PNAS*, 122, e2503071122.
+- Goodman, J., & Weare, J. (2010). Ensemble samplers with affine invariance. *Comm. Appl. Math. Comput. Sci.*, 5(1), 65–80.
 - Mavko, G., Mukerji, T., & Dvorkin, J. (2020). *The Rock Physics Handbook*, 3rd Ed. Cambridge University Press.
