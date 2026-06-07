@@ -77,7 +77,7 @@ WRIGHT_MODE = 1.248
 ax1 = axes[1]
 ax1.plot(WRIGHT_MODE, y[0] + height, marker='*', color='red', markersize=18,
          markeredgecolor='black', markeredgewidth=0.8, zorder=10,
-         label='Peak-based mode')
+         label='Wright (2024) estimate')
 
 # Build legend manually
 from matplotlib.patches import Patch
@@ -88,7 +88,7 @@ legend_elements = [
     Patch(facecolor=colors[2], edgecolor='black', linewidth=0.5, label='Mean'),
     Line2D([0], [0], marker='*', color='w', markerfacecolor='red',
            markeredgecolor='black', markeredgewidth=0.8, markersize=18,
-           label='Peak-based mode'),
+           label='Wright (2024) estimate'),
 ]
 axes[1].legend(handles=legend_elements, fontsize=14, loc='center right')
 
