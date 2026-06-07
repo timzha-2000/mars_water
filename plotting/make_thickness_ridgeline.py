@@ -98,7 +98,7 @@ handles.append(Line2D([0], [0], marker='*', color='w', markerfacecolor='red',
                        markeredgecolor='black', markeredgewidth=0.8, markersize=18,
                        label='Wright (2024) estimate'))
 labels.append('Wright (2024) estimate')
-ax.legend(handles, labels, loc='center right', fontsize=14, frameon=True)
+ax.legend(handles, labels, loc='upper right', fontsize=14, frameon=True)
 
 plt.tight_layout()
 
