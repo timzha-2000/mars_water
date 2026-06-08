@@ -83,6 +83,9 @@ for idx, (model_key, _) in enumerate(MODELS):
 n_rows = len(MODELS)
 row_height = 1.0
 
+# Single common vertical scale shared by every theory row
+global_max = max(row_max.values())
+
 fig, ax = plt.subplots(figsize=(11, 10))
 
 # Reserve space for the dry spike as a fraction of the row height
@@ -93,7 +96,7 @@ for idx in range(n_rows - 1, -1, -1):
     baseline = idx * row_height
     theory_idx = n_rows - 1 - idx
     model_key, label = MODELS[theory_idx]
-    scale = row_height * 0.85 / max(row_max[theory_idx], 1e-12)
+    scale = row_height * 0.85 / max(global_max, 1e-12)
 
     for case_suffix, case_label, color in reversed(CASES):
         c = all_curves[(theory_idx, case_suffix)]

@@ -85,14 +85,15 @@ for i, (label, color, cont_npy, bin_wet_npy, lzw, lzd) in enumerate(SETS):
 # (P(dry)/BIN_WIDTH), which typically dominates the wet KDE peak.
 bin_row_max  = max(c["density"].max() for c in binary_curves.values())
 cont_row_max = max(d.max() for d in cont_curves.values())
+# Single common vertical scale shared by both panels and every row
+global_max = max(bin_row_max, cont_row_max)
 
 fig, (ax_b, ax_c) = plt.subplots(1, 2, figsize=(14, 5.5), sharey=True)
 
 def draw(ax, top_density, top_kind):
     """top_density is dict: i -> dict(density, p_wet, p_dry)  if kind='binary'
                           : i -> ndarray (density)            if kind='cont'"""
-    scale_max = bin_row_max if top_kind == "binary" else cont_row_max
-    scale = row_height * 0.85 / max(scale_max, 1e-12)
+    scale = row_height * 0.85 / max(global_max, 1e-12)
 
     for i_top in range(n_sets - 1, -1, -1):  # ridge 1 at top
         baseline = (n_sets - 1 - i_top) * row_height  # top-down

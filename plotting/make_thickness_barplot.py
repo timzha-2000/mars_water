@@ -8,14 +8,14 @@ from pathlib import Path
 BASE = Path(__file__).resolve().parents[1]
 
 MODELS = [
-    ("models/1_SCM_Voigt",  "outputs_bm"),
-    ("models/2_SCM_Hill", "outputs_bmw"),
-    ("models/3_HS_Voigt",         "outputs_hsu"),
-    ("models/4_HS_Hill",        "outputs_hsu"),
-    ("models/5_DEM_Voigt",       "outputs_demni"),
-    ("models/6_DEM_Hill",      "outputs_demni"),
-    ("models/7_KT",         "outputs_kt"),
-    ("models/8_VRH",        "outputs_vrh"),
+    ("models/1_SCM_Voigt",  "outputs_bm",    "1: Berryman + Voigt"),
+    ("models/2_SCM_Hill", "outputs_bmw",   "2: Berryman + Hill"),
+    ("models/3_HS_Voigt",         "outputs_hsu",   "3: HS + Voigt"),
+    ("models/4_HS_Hill",        "outputs_hsu",   "4: HS + Hill"),
+    ("models/5_DEM_Voigt",       "outputs_demni", "5: DEM + Voigt"),
+    ("models/6_DEM_Hill",      "outputs_demni", "6: DEM + Hill"),
+    ("models/7_KT",         "outputs_kt",    "7: Kuster–Toksöz"),
+    ("models/8_VRH",        "outputs_vrh",   "8: Voigt–Reuss–Hill"),
 ]
 
 CASES = [
@@ -33,7 +33,9 @@ mode   = np.zeros((n_theories, n_cases))
 median = np.zeros((n_theories, n_cases))
 mean   = np.zeros((n_theories, n_cases))
 
-for i, (model_key, out_sub) in enumerate(MODELS):
+theory_labels = [name for _, _, name in MODELS]
+
+for i, (model_key, out_sub, _) in enumerate(MODELS):
     for j, (case_suffix, _) in enumerate(CASES):
         npy = BASE / model_key / out_sub / f"thickness_samples_{case_suffix}.npy"
         s = np.load(npy) / 1000.0  # m -> km
@@ -63,13 +65,15 @@ for col, ax in enumerate(axes):
 
     ax.set_xticks(np.arange(0, 4.0, 0.5))
     ax.set_yticks(y)
-    ax.set_yticklabels(theories, fontsize=20)
+    if col == 0:
+        ax.set_yticklabels(theory_labels, fontsize=13)   # full names on left panel only
+    else:
+        ax.set_yticklabels([])                            # drop redundant numbering in middle/right
     ax.set_title(vp_labels[col], fontsize=22)
     ax.set_xlim(0, xmax)
     ax.tick_params(axis='both', which='major', labelsize=20, length=8, width=1.5)
     ax.invert_yaxis()
 
-axes[0].set_ylabel('Theory Number', fontsize=22)
 axes[1].set_xlabel('Water-Layer Thickness (km)', fontsize=22)
 
 # Mark the mode-based estimate from peak porosity & saturation (Wright et al.)
@@ -77,7 +81,7 @@ WRIGHT_MODE = 1.248
 ax1 = axes[1]
 ax1.plot(WRIGHT_MODE, y[0] + height, marker='*', color='red', markersize=18,
          markeredgecolor='black', markeredgewidth=0.8, zorder=10,
-         label='Peak-based mode')
+         label='Wright (2024) estimate')
 
 # Build legend manually
 from matplotlib.patches import Patch
@@ -88,7 +92,7 @@ legend_elements = [
     Patch(facecolor=colors[2], edgecolor='black', linewidth=0.5, label='Mean'),
     Line2D([0], [0], marker='*', color='w', markerfacecolor='red',
            markeredgecolor='black', markeredgewidth=0.8, markersize=18,
-           label='Peak-based mode'),
+           label='Wright (2024) estimate'),
 ]
 axes[1].legend(handles=legend_elements, fontsize=14, loc='center right')
 

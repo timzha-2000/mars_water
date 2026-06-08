@@ -47,15 +47,18 @@ for idx, (model_key, out_sub, _) in enumerate(MODELS):
 n_rows = len(MODELS)
 row_height = 1.0        # vertical spacing between rows
 
+# Single common vertical scale shared by every theory row
+global_max = max(row_max.values())
+
 fig, ax = plt.subplots(figsize=(10, 10))
 
 for idx in range(n_rows - 1, -1, -1):  # draw bottom rows first
     baseline = idx * row_height
     model_key, out_sub, label = MODELS[n_rows - 1 - idx]  # theory 1 at top
 
-    # Per-row scaling so each ridge fills its row
+    # Common vertical scale so ridge heights are comparable across theories
     theory_idx = n_rows - 1 - idx
-    scale = row_height * 0.85 / row_max[theory_idx]
+    scale = row_height * 0.85 / global_max
 
     # Draw in reverse order so first case is on top
     for case_suffix, case_label, color in reversed(CASES):
@@ -93,35 +96,28 @@ from matplotlib.lines import Line2D
 handles, labels = ax.get_legend_handles_labels()
 handles.append(Line2D([0], [0], marker='*', color='w', markerfacecolor='red',
                        markeredgecolor='black', markeredgewidth=0.8, markersize=18,
-                       label='Peak-based mode'))
-labels.append('Peak-based mode')
-ax.legend(handles, labels, loc='center right', fontsize=14, frameon=True)
+                       label='Wright (2024) estimate'))
+labels.append('Wright (2024) estimate')
+ax.legend(handles, labels, loc='upper right', fontsize=14, frameon=True)
 
 plt.tight_layout()
 
-# Add a right-side vertical axis for each row showing actual density scale
+# Single shared density axis on the right: all rows use one common vertical
+# scale, so one calibrated ridge-height bar (0 -> global_max) serves every row.
 from matplotlib.ticker import MaxNLocator
 pos = ax.get_position()
 ylim = ax.get_ylim()
 data_range = ylim[1] - ylim[0]
-for idx in range(n_rows):
-    theory_idx = n_rows - 1 - idx
-    baseline = idx * row_height
-    # Convert data coords to figure coords
-    fig_y0 = pos.y0 + (baseline - ylim[0]) / data_range * (pos.y1 - pos.y0)
-    fig_y1 = pos.y0 + (baseline + row_height - ylim[0]) / data_range * (pos.y1 - pos.y0)
-    gap = (fig_y1 - fig_y0) * 0.08
-    fig_y0 += gap
-    fig_y1 -= gap
-    ax_r = fig.add_axes([pos.x1, fig_y0, 0.015, fig_y1 - fig_y0])
-    ax_r.set_ylim(0, row_max[theory_idx])
-    ax_r.set_xticks([])
-    ax_r.yaxis.tick_right()
-    ax_r.yaxis.set_major_locator(MaxNLocator(nbins=3, prune='both'))
-    ax_r.tick_params(axis='y', labelsize=7, length=3, width=0.8)
-    ax_r.spines['top'].set_visible(False)
-    ax_r.spines['bottom'].set_visible(False)
-    ax_r.spines['left'].set_visible(False)
+bar_fig_height = (row_height * 0.85) / data_range * (pos.y1 - pos.y0)
+fig_yc = (pos.y0 + pos.y1) / 2
+ax_r = fig.add_axes([pos.x1 + 0.005, fig_yc - bar_fig_height / 2, 0.015, bar_fig_height])
+ax_r.set_ylim(0, global_max)
+ax_r.set_xticks([])
+ax_r.yaxis.tick_right()
+ax_r.yaxis.set_major_locator(MaxNLocator(nbins=4, prune='both'))
+ax_r.tick_params(axis='y', labelsize=8, length=3, width=0.8)
+for s in ('top', 'bottom', 'left'):
+    ax_r.spines[s].set_visible(False)
 
 # Right-side axis label
 fig.text(pos.x1 + 0.06, (pos.y0 + pos.y1) / 2, "Probability Density",
