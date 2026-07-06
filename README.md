@@ -67,6 +67,7 @@ After the inversions have been run, the `plotting/` scripts build the figures:
 |---|---|
 | `make_thickness_barplot.py`            | mode/median/mean thickness barplot (Fig. 1) |
 | `make_thickness_ridgeline.py`          | continuous thickness ridgeline (Fig. 2) |
+| `make_scm_vp41_interpretation.py`      | SCM (phi, S_w) crossplot: geometric origin of the thickness posterior (Fig. 3) |
 | `make_porosity_ridgeline.py`           | porosity marginals (App A) |
 | `make_saturation_ridgeline.py`         | saturation marginals (App A) |
 | `make_thickness_overlay.py`            | thickness overlay panel |
@@ -87,6 +88,9 @@ python plotting/make_thickness_ridgeline.py
 | `launch_all.sh`          | Convenience launcher for all 48 binary runs (8 models × 3 cases × {wet, dry}). |
 | `make_binary_table.py`   | Builds the binary wet/dry probability and thickness table (Table A.2). |
 | `spread_analysis.py`     | Across-theory disagreement vs. Vp/Vs, by range and coefficient of variation (Table 4). |
+| `run_hotstart.py`        | Warm/hot-start re-run of a single inversion: reuses the model's executed notebook (the exact forward model + sampler), applies Wright et al.'s cold-start → RMSE<3 resample → production protocol, and saves the resulting thickness posterior. For the Appendix C initialization-robustness check. |
+| `launch_hotstart_all.sh` | Runs `run_hotstart.py` over all 24 theory–velocity combinations → `analysis/hotstart_outputs/`. Requires each model's `run.py` to have been executed first (uses the per-case `*_executed_*.ipynb` notebooks). |
+| `compare_hotstart.py`    | Tabulates cold-start vs. warm-start median / mean / P(h<0.5) for all 24 combinations and the worst-case shift — the Appendix C warm-start comparison. |
 
 Convergence (after running the inversions):
 ```bash
@@ -99,6 +103,12 @@ python analysis/setup_binary.py     # generate binary runners in each model dir
 bash analysis/launch_all.sh         # run all 48 (or run each models/<m>/run_binary_*.py)
 python analysis/make_binary_table.py
 python plotting/make_thickness_ridgeline_binary.py
+```
+
+Warm/hot-start robustness check (Appendix C; after the continuous inversions are run):
+```bash
+bash analysis/launch_hotstart_all.sh   # 24 warm-start re-runs -> analysis/hotstart_outputs/
+python analysis/compare_hotstart.py    # cold-start vs warm-start comparison table
 ```
 
 ## Wright et al. (2024) reimplementation (`wmm24/`)

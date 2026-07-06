@@ -4,6 +4,8 @@ __pycache__/
 models/*/outputs_*/
 wmm24/*/outputs_*/
 analysis/*.csv
+# generated warm/hot-start posteriors (from analysis/launch_hotstart_all.sh)
+analysis/hotstart_outputs/
 # generated binary notebooks/runners (created by analysis/setup_binary.py)
 models/*/*_binary_*.ipynb
 models/*/run_binary_*.py
